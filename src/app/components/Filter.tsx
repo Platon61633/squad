@@ -1,14 +1,17 @@
 'use client'
 
 import { useMemo, useState } from "react";
-import styles from "../page.module.css";
+import styles from "../styles/filter.module.css";
+
 
 export default function Filter({SetFilter, FilterState, Type, SetFlagFilter}: {SetFilter: any, FilterState: any, Type: any, SetFlagFilter: any}){
 
-    const [Price , SetPrice] = useState({min: 0, max: 588});
+    const [Price , SetPrice] = useState({min: FilterState.price.min, max: FilterState.price.max});
 
     const [PolzunokMax , SetPolzunokMax] = useState(false);
     const [PolzunokMin , SetPolzunokMin] = useState(false);
+    
+    const [ChooseID , SetChooseID] = useState(['']);
     
     
     // const PriceMemo = useMemo(
@@ -23,8 +26,36 @@ export default function Filter({SetFilter, FilterState, Type, SetFlagFilter}: {S
     switch (Type) {
         case 'brand':
             return(
-                <div>
-                    Выберите производителя
+                <div className={styles.brand}>
+                    <h4>Выберите производителя</h4>
+                    <div className={styles.list}>
+                        {FilterState.brand.map((e: string, id: any)=>
+                            <div key={id} style={ChooseID.includes(id)?{color: 'black', backgroundColor: 'white'}: {}} className={styles.itemBrand}
+                            onClick={()=>
+                                {
+                                const flag = ChooseID.indexOf(id)
+                                 
+                                if (flag+1){
+                                    console.log(flag);
+                                    ChooseID.splice(flag, 1)
+                                    
+                                    SetChooseID([...ChooseID])
+                                    
+                                }
+                                else{
+                                    SetChooseID([...ChooseID, id])
+                                }
+                                
+                            
+                                
+                                
+                            }
+                            }>
+                                {e}
+                            </div>
+                        )}
+                    </div>
+                        
                 </div>
             )
         case 'price':
@@ -36,27 +67,28 @@ export default function Filter({SetFilter, FilterState, Type, SetFlagFilter}: {S
                         <div className={styles.rangeBack} onMouseMove={e=>{
                             if (PolzunokMin){
                                 const x = e.clientX
-                                if (x>=36)
-                                    SetPrice({min: x-36, max: Price.max})
-                                console.log(x)
+                                if (x>=36 && x<=624)
+                                    if (Price.max-x>-32)
+                                        SetPrice({min: x-36, max: Price.max})
                             }
                             if (PolzunokMax) {
                                 const x = e.clientX
-                                if (x<=624) SetPrice({max: x-36, min: Price.min})
-                                console.log(x)
-                            }}}>
-                            <div 
-                            
-                                onMouseDown={e=>{
-                                    SetPolzunokMin(true)
+                                if (x<=624 && x>=36)
+                                    console.log(x, Price.min);
                                     
-                                }}
-                                onMouseUp={e=>{
-                                    SetPolzunokMin(false)
-                                }}
-                                style={{translate: `${Price.min}px 0px`}} className={styles.polzunokL}></div>
-                            <div className={styles.range} style={{width: Price.max-Price.min+12, translate: `${Price.min}px 0px`}}></div>
-                            <div 
+                                    if (x-Price.min>40) SetPrice({max: x-36, min: Price.min})
+                            }}}>
+                            <div className={styles.left} style={{width: Price.min?Price.min+2:0}}></div>
+                            <div className={styles.polzunokL} style={{translate: `${Price.min}px 0`}}
+                            onMouseDown={e=>{
+                                SetPolzunokMin(true)
+                                
+                            }}
+                            onMouseUp={e=>{
+                                SetPolzunokMin(false)
+                            }}
+                            ></div>
+                            <div className={styles.polzunokR} style={{translate: `${Price.max-588}px 0`}}
                             onMouseDown={e=>{
                                 SetPolzunokMax(true)
                                 
@@ -65,7 +97,8 @@ export default function Filter({SetFilter, FilterState, Type, SetFlagFilter}: {S
                                 SetPolzunokMax(false)
                                 console.log('l');
                                 
-                            }} style={{translate: `${Price.max-588}px 0px`}} className={styles.polzunokR}></div>
+                            }}></div>
+                            <div className={styles.right} style={{width: 588-Price.max, translate: `${Price.max-588}px 0`}}></div>
                         </div>
                         
                         <button onClick={
